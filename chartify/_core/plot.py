@@ -1956,7 +1956,7 @@ class PlotMixedTypeXY(BasePlot):
                 alpha=1.0,
                 marker='circle',
                 jitter_amount=0,
-                radiuis=None):
+                radius=None):
         """Scatter chart.
 
         Note:
@@ -2047,7 +2047,7 @@ class PlotMixedTypeXY(BasePlot):
                 else:
                     y_value, x_value = jitter('factors', jitter_amount, range=self._chart.figure.y_range), numeric_column
 
-            if marker == "circle" and "radius" is not None:
+            if marker == "circle" and radius is not None:
                 self._plot_with_legend(
                     self._chart.figure.scatter,
                     legend_label=legend,
