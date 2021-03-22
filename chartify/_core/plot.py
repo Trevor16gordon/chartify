@@ -23,7 +23,7 @@ import pandas as pd
 import numpy as np
 from chartify._core.colors import Color, color_palettes
 from chartify._core.axes import NumericalYMixin, NumericalXMixin
-
+from bokeh.transform import jitter
 from scipy.stats.kde import gaussian_kde
 
 
@@ -1954,7 +1954,9 @@ class PlotMixedTypeXY(BasePlot):
                 categorical_order_by='count',
                 categorical_order_ascending=False,
                 alpha=1.0,
-                marker='circle'):
+                marker='circle',
+                jitter_amount=0,
+                radiuis=None):
         """Scatter chart.
 
         Note:
@@ -2034,23 +2036,44 @@ class PlotMixedTypeXY(BasePlot):
                 sliced_data, series_name=color_value)
             source.add(data_factors, 'factors')
 
-            if vertical:
-                x_value, y_value = 'factors', numeric_column
+            if not jitter_amount:
+                if vertical:
+                    x_value, y_value = 'factors', numeric_column
+                else:
+                    y_value, x_value = 'factors', numeric_column
             else:
-                y_value, x_value = 'factors', numeric_column
+                if vertical:
+                    x_value, y_value = jitter('factors', jitter_amount, range=self._chart.figure.x_range), numeric_column
+                else:
+                    y_value, x_value = jitter('factors', jitter_amount, range=self._chart.figure.y_range), numeric_column
 
-            self._plot_with_legend(
-                self._chart.figure.scatter,
-                legend_label=legend,
-                x=x_value,
-                y=y_value,
-                size=size_column,
-                fill_color=color,
-                line_color=color,
-                source=source,
-                marker=marker,
-                alpha=alpha
-                )
+            if marker == "circle" and "radius" is not None:
+                self._plot_with_legend(
+                    self._chart.figure.scatter,
+                    legend_label=legend,
+                    x=x_value,
+                    y=y_value,
+                    size=size_column,
+                    fill_color=color,
+                    line_color=color,
+                    source=source,
+                    marker=marker,
+                    alpha=alpha,
+                    radius=radius,
+                    )
+            else:
+                self._plot_with_legend(
+                    self._chart.figure.scatter,
+                    legend_label=legend,
+                    x=x_value,
+                    y=y_value,
+                    size=size_column,
+                    fill_color=color,
+                    line_color=color,
+                    source=source,
+                    marker=marker,
+                    alpha=alpha,
+                    )
 
         # Set legend defaults if there are multiple series.
         if color_column is not None:
